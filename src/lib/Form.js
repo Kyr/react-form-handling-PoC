@@ -1,7 +1,16 @@
 import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
 import Template from "./Template";
+import byNameAccess from "./byNameAccessProxy";
 
 export default class Form extends PureComponent {
+  static propTypes = {
+    errors: PropTypes.array
+  };
+
+  static defaultProps = {
+    errors: []
+  };
 
   onSubmit = event => {
     event.preventDefault();
@@ -24,13 +33,31 @@ export default class Form extends PureComponent {
   };
 
   onBlur = event => {
-    const { target } = event;
+    event.preventDefault();
+    event.stopPropagation();
 
-    this.props.onBlur && this.props.onBlur(target);
+    const { target } = event;
+    console.log("Form.onBlur target:", target);
+    // Do not propagate event on not-named controls (button, etc.)
+    target.name && this.props.onBlur && this.props.onBlur(target);
   };
 
   render() {
-    const { Layout, ...rest } = this.props;
+    const { Layout, errors: passedErrorsList, ...rest } = this.props;
+    // console.log("Form.render passedErrorsList: ", passedErrorsList);
+
+    // const errors = new Proxy(passedErrorsList, byNameAccess);
+    const errors = passedErrorsList.reduce((acc, error) => {
+      return {
+        ...acc,
+        [error.dataPath.replace(/^\./, "")]: passedErrorsList
+          .filter(e => e.dataPath === error.dataPath)
+          .map(
+            error =>
+              "data path: " + error.dataPath + " keyword: " + error.keyword
+          )
+      };
+    }, {});
 
     const children = React.Children.map(this.props.children, children => {
       return React.cloneElement(children, {
@@ -38,7 +65,7 @@ export default class Form extends PureComponent {
         onBlur: this.onBlur
       });
     });
-
+    // debugger;
     return (
       <form
         noValidate
@@ -46,7 +73,9 @@ export default class Form extends PureComponent {
         onSubmit={this.onSubmit}
         ref={this.saveFormRef}
       >
-        <Template Layout={this.props.Layout}>{children}</Template>
+        <Template Layout={this.props.Layout} errors={errors}>
+          {children}
+        </Template>
       </form>
     );
   }

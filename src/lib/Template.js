@@ -4,15 +4,11 @@ import PropTypes from "prop-types";
 const defaultSlotName = "[[default slot]]";
 
 Template.propTypes = {
-  Layout: PropTypes.node.isRequired,
+  Layout: PropTypes.node.isRequired
 };
 
 export default function Template(props) {
-  const {
-              Layout,
-    children,
-    ...rest
-          } = props;
+  const { Layout, children, ...rest } = props;
 
   return Layout({ slots: childrenToSlots(children), ...rest });
 }
@@ -22,18 +18,18 @@ function childrenToSlots(childrens) {
     if (!children.props.hasOwnProperty("slot")) return;
 
     const isString = typeof children.props.slot === "string";
-    const slotName = isString && children.props.slot || defaultSlotName;
+    const slotName = (isString && children.props.slot) || defaultSlotName;
 
     return {
       slot: slotName,
-      content: React.cloneElement(children, { slot: void 0 }),
+      content: React.cloneElement(children, { slot: void 0 })
     };
   });
-
+  // debugger;
   return slotsArray.reduce((acc, { slot, content }) => {
     return {
       ...acc,
-      [slot]: content,
+      [slot]: content
     };
   }, {});
 }
