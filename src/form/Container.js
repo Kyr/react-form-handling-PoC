@@ -7,7 +7,8 @@ const Phone = props => <input {...props} />;
 
 export default class Container extends PureComponent {
   static propTypes = {
-    values: PropTypes.object
+    onSubmit: PropTypes.func,
+    values: PropTypes.object,
   };
 
   static defaultProps = {};
@@ -42,6 +43,8 @@ export default class Container extends PureComponent {
   onSubmit = args => {
     console.log("Container.onSubmit. args: ", args);
     console.log("values: ", this.state.values);
+    
+    this.props.onSubmit(this.state.values);
   };
 
   onChange = (name, value) => {

@@ -13,7 +13,6 @@ export default function View(props) {
       </div>
       <div className="control">
         <phone.type {...phone.props} id="phone" className="phone-input" />
-        {phone}
       </div>
       <footer>
         {cancel}
